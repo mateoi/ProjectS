@@ -19,12 +19,12 @@ void calculate_time(int number_of_iterations, uint64_t* array) {
             "CPUID;"
             "CPUID;"
             "CPUID;");
-        // read the timing register and put it in r8.
+        // read the timing register and put it in time0.
         asm("RDTSC;");
         asm("mov %%rax, %0;" : "=r" (time0));
         // Do a 64 bit multiplication -- the time this will take depends on the ALU load.
         asm("imul %rbx, %rcx;");
-        // Check the clock again, put it somewhere safe, and synchronize the CPU.
+        // Check the clock again, put it in time1, and synchronize the CPU.
         asm("RDTSC;");
         asm("mov %%rax, %0;" : "=r" (time1));
         asm("CPUID;"

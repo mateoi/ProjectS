@@ -6,4 +6,11 @@
 *.opensdf
 *.vcxproj
 *.vcxproj*
+*.log
+*.tlog
+*.lastbuildstate
+*.pdb
+*.obj
+*.idb
+Debug/
 
