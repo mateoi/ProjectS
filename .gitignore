@@ -1,0 +1,9 @@
+*.swp
+*.3o
+*.sdf
+*.sln
+*.suo
+*.opensdf
+*.vcxproj
+*.vcxproj*
+
