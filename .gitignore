@@ -1,0 +1,16 @@
+*.swp
+*.3o
+*.sdf
+*.sln
+*.suo
+*.opensdf
+*.vcxproj
+*.vcxproj*
+*.log
+*.tlog
+*.lastbuildstate
+*.pdb
+*.obj
+*.idb
+Debug/
+
