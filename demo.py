@@ -10,20 +10,23 @@ import subprocess
 import sys
 from matplotlib import pyplot as plt
 
-BIN_NAME = "./count_cycles"
+if sys.platform == "win32":
+    BIN_NAME = "Release/CycleCounter_Windows.exe"
+else:
+    BIN_NAME = "./count_cycles"
 
 
 def __main__():
     if len(sys.argv) >= 2:
         iterations = int(sys.argv[1])
     else:
-        iterations = 1000
+        iterations = 2000
     output = get_stdout(iterations)
     ints = to_ints(output)
     plt.plot(ints)
     plt.ylabel("CPU cycles per multiplication")
     plt.xlabel("Iterations")
-    plt.gca().set_ylim(bottom=0)
+    # plt.gca().set_ylim(bottom=0)
     plt.show()
 
 
@@ -46,3 +49,4 @@ def get_stdout(iterations):
     return output.decode("utf-8")
 
 __main__()
+
