@@ -7,22 +7,25 @@ Created on Wed Feb  8 10:48:23 2017
 """
 
 import subprocess
+import fileinput
 import sys
 from matplotlib import pyplot as plt
 
-if sys.platform == "win32":
-    BIN_NAME = "Release/CycleCounter_Windows.exe"
-else:
-    BIN_NAME = "./count_cycles"
+BIN_NAME = "Release/CycleCounter_Windows.exe"
 
 
 def __main__():
-    if len(sys.argv) >= 2:
-        iterations = int(sys.argv[1])
+    if sys.platform == "win32":
+        if len(sys.argv) >= 2:
+            iterations = int(sys.argv[1])
+        else:
+            iterations = 2000
+        output = get_stdout(iterations)
+        ints = to_ints(output)
     else:
-        iterations = 2000
-    output = get_stdout(iterations)
-    ints = to_ints(output)
+        output = read_stdin()
+        ints = [int(line) for line in output]
+
     plt.plot(ints)
     plt.ylabel("CPU cycles per multiplication")
     plt.xlabel("Iterations")
@@ -32,7 +35,7 @@ def __main__():
 
 def to_ints(string):
     """
-    Converts a newline-separated into a list of ints
+    Converts a newline-separated string into a list of ints
     """
     as_list = string.splitlines()
     return [int(item) for item in as_list]
@@ -48,5 +51,9 @@ def get_stdout(iterations):
     output = popen.stdout.read()
     return output.decode("utf-8")
 
-__main__()
 
+def read_stdin():
+    return [line for line in fileinput.input()]
+
+
+__main__()
