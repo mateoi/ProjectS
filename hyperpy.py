@@ -33,12 +33,17 @@ def simple_plot(data, **kwargs):
     return plt.gcf()
 
 
-def frequency_spectrum_plot(data, **kwargs):
+def frequency_spectrum_plot(data, points=None, **kwargs):
     """
     Returns a figure containing the frequency spectrum of the given data.
     """
     power_spectrum = np.abs(fft(data)) ** 2
-    frequencies = fftfreq(data.size)
+    points = data.size if points is None else points
+    frequencies = fftfreq(points)
     indices = np.argsort(frequencies)
-    plt.plot(frequencies[indices], power_spectrum[indices])
+    width = frequencies[indices][1] - frequencies[indices][0]
+    colors = np.linspace(0,1, points)
+    colors = plt.cm.viridis(colors)
+    plt.bar(frequencies[indices], power_spectrum[indices], width=width,
+            color=colors)
     return plt.gcf()
