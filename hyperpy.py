@@ -89,7 +89,6 @@ def spectrogram(data, window_size=500, points=32, peak_scaling=1,
     return plt.gcf()
 
 
-
 def calculate_spectrogram_matrix(data, window_size, points, blinding=False):
     """
     Calculates a spectrogram matrix of the power spectrum of the given data
@@ -118,3 +117,61 @@ def calculate_frequency_spectrum(data, points):
     frequencies = fftfreq(points)
     indices = np.argsort(frequencies)
     return frequencies[indices], power_spectrum[indices]
+
+
+def hamming_distance(array1, array2):
+    """
+    Calculates the hamming distance between the two arrays, which should be of
+    the same size.
+    """
+    assert array1.size == array2.size
+    return array1.size - np.equal(array1, array2).count_nonzero()
+
+
+def differentiate_arrays(array1, array2, window=100, max_slide=10,
+                         differential_function=hamming_distance):
+    """
+    Calculates the difference between the two arrays (array1 - array2), while
+    adjusting the arrays linearly in windows of the given size and with a given
+    maximum slide, in order to minimize the given differential function.
+    """
+    index1 = 0
+    index2 = 0
+    result = np.arr([])
+    while index1 < array1.size and index2 < array2.size:
+        slide = _minimize_difference(array1[index1:index1 + window],
+                                     array2[index2:index2 + window], max_slide,
+                                     differential_function)
+        if slide > 0:
+            slice1 = array1[index1 + slide:index1 + window]
+            slice2 = array2[index2:index2 + window - slide]
+            result = np.append(result, slice1 - slice2)
+            index1 += window
+            index2 += window - slide
+        else:
+            slice1 = array1[index1:index1 + window - slide]
+            slice2 = array2[index2 + slide:index2 + window]
+            result = np.append(result, slice1 - slice2)
+            index1 += window - slide
+            index2 += window
+    return result
+
+
+def _minimize_difference(array1, array2, max_slide,
+                         differential_function=hamming_distance):
+    """
+    Calculates the slide (less than or equal to max_slide) that will result in
+    the differential function being minimized for the two arrays. A slide is an
+    offset of array1 with respect to array2: a slide of 5, for example, means
+    that the function is minimized for array1[5:] and array2[:-5]; a slide of
+    -3 means that the function is minimized for array1[:-3] and array2[3:].
+    """
+    minimum = (0, differential_function(array1, array2))
+    for i in range(1, max_slide + 1):
+        diff_r = differential_function(array1[i:], array2[:-i])
+        diff_l = differential_function(array1[:-i], array2[i:])
+        if diff_r < minimum[1]:
+            minimum = (i, diff_r)
+        if diff_l < minimum[1]:
+            minimum = (-i, diff_l)
+        return minimum[0]
