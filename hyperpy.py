@@ -121,11 +121,11 @@ def calculate_frequency_spectrum(data, points):
 
 def hamming_distance(array1, array2):
     """
-    Calculates the hamming distance between the two arrays, which should be of
-    the same size.
+    Calculates the hamming distance between the two arrays
     """
-    assert array1.size == array2.size
-    return array1.size - np.equal(array1, array2).count_nonzero()
+    min_index = min(array1.size, array2.size)
+    equal_indices = np.equal(array1[:min_index], array2[:min_index])
+    return min_index - np.count_nonzero(equal_indices)
 
 
 def differentiate_arrays(array1, array2, window=100, max_slide=10,
@@ -137,7 +137,7 @@ def differentiate_arrays(array1, array2, window=100, max_slide=10,
     """
     index1 = 0
     index2 = 0
-    result = np.arr([])
+    result = np.array([])
     while index1 < array1.size and index2 < array2.size:
         slide = _minimize_difference(array1[index1:index1 + window],
                                      array2[index2:index2 + window], max_slide,
@@ -145,13 +145,15 @@ def differentiate_arrays(array1, array2, window=100, max_slide=10,
         if slide > 0:
             slice1 = array1[index1 + slide:index1 + window]
             slice2 = array2[index2:index2 + window - slide]
-            result = np.append(result, slice1 - slice2)
+            min_index = min(slice1.size, slice2.size)
+            result = np.append(result, slice1[:min_index] - slice2[:min_index])
             index1 += window
             index2 += window - slide
         else:
             slice1 = array1[index1:index1 + window - slide]
             slice2 = array2[index2 + slide:index2 + window]
-            result = np.append(result, slice1 - slice2)
+            min_index = min(slice1.size, slice2.size)
+            result = np.append(result, slice1[:min_index] - slice2[:min_index])
             index1 += window - slide
             index2 += window
     return result
